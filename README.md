@@ -4,7 +4,7 @@ Welcome to the Surpass API.
 
 You can download the SDK from nuget blah, blah, blah
 Here's some sample code to create a centre
-'''
+```
 CentreCreateUpdateResource myCentre = new CentreCreateUpdateResource
             {
                 Name = "BTL Centre",
@@ -18,4 +18,4 @@ SubjectCreateResource mySubject = new SubjectCreateResource
                 PrimaryCentre = myCreatedCentre
             };
 var myCreatedSubject = m_helper.CreateOrUpdateSubject(mySubject);
-'''
+```
