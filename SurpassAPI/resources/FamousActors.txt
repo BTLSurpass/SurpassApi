@@ -1,0 +1,10 @@
+﻿1.|Jack Nicholson|Actor, The Shining|22 April 1937|15 Feb 2011
+2.|Ralph Fiennes|Actor, The Grand Budapest Hotel|22 December 1962|14 Feb 2011
+3.|Daniel Day-Lewis|Actor, There Will Be Blood|29 April 1957|15 Feb 2011
+4.|Robert De Niro|Actor, Goodfellas|17 August 1943|15 Feb 2011
+5.|Al Pacino|Actor, The Godfather|25 April 1940|15 Feb 2011
+6.|Dustin Hoffman|Actor, Kramer vs. Kramer|8 August 1937|15 Feb 2011
+7.|Tom Hanks|Actor, The Da Vinci Code|9 July 1956|15 Feb 2011
+8.|Brad Pitt|Actor, Inglourious Basterds|18 December 1963|15 Feb 2011
+9.|Anthony Hopkins|Actor, Hannibal|31 December 1937|15 Feb 2011
+10.|Marlon Brando|Actor, The Godfather|3 April 1924|10 Oct 2010
