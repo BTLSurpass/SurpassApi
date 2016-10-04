@@ -26,4 +26,5 @@ SubjectCreateResource mySubject = new SubjectCreateResource
     Reference = "Surpass0001",
     PrimaryCentre = myCreatedCentre
 };
+var myCreatedSubject = mySubjectClient.CreateOrUpdateSubject(mySubject);
 ```
