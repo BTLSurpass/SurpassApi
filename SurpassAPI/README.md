@@ -4,6 +4,8 @@ Welcome to the Surpass API.
 
 You can download the SDK from nuget..... Information to follow
 
+[API documentation on demo.surpass.com](https://demo.surpass.com/api/v2)
+
 Here's some sample code to create a centre
 ```cs
 var mySurpassClient = new SurpassApiClient(SurpassUrl, SurpassUsername, SurpassPassword);

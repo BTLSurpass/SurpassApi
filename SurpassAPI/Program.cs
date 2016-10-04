@@ -5,9 +5,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using SurpassApiSdk;
+using SurpassApiSdk.DataContracts.Base;
 using SurpassApiSdk.DataContracts.Candidate;
 using SurpassApiSdk.DataContracts.Centre;
 using SurpassApiSdk.DataContracts.Subject;
+using SurpassApiSdk.DataContracts.TestSchedule;
 
 namespace SurpassAPI
 {
@@ -18,11 +20,56 @@ namespace SurpassAPI
         public static string SurpassPassword { get; set; }
         static void Main(string[] args)
         {
-
+            SurpassUrl = @"https://instanceName.surpass.com/";
+            SurpassUsername = @"ThisIsNotaUsername";
+            SurpassPassword = @"ThisIsNotaPassword";
             var mySurpassClient = new SurpassApiClient(SurpassUrl, SurpassUsername, SurpassPassword);
-            var myCentreClient = new CentreHelper(mySurpassClient);
-            var mySubjectClient = new SubjectHelper(mySurpassClient);
-            var myCandidateHelper = new CandidateHelper(mySurpassClient);
+            runSampleSurpassPopulation(mySurpassClient);
+            scheduleTestForToday(mySurpassClient, "Exam01", "Shipley001", "candidateRef01");
+        }
+
+        static void scheduleTestForToday(SurpassApiClient surpassClient, string examReference, string centreReference, string candidateReference)
+        {
+            var myTestScheduleHelper = new TestScheduleHelper(surpassClient);
+            var mySchedule = new TestScheduleResource
+            {
+                Test = new Resource
+                {
+                    Reference = examReference
+                },
+                Centre = new Resource
+                {
+                    Reference = centreReference
+                },
+                Candidate = new Resource
+                {
+                    Reference = candidateReference
+                },
+                StartDate = DateTime.Now.ToShortDateString(),
+                StartTime = "0900",
+                EndDate = DateTime.Now.AddDays(1).ToShortDateString(),
+                EndTime = "1600",
+
+                RequiresInvigilation = true,
+                AllowMultipleOpenSessions = false
+            };
+            try
+            {
+                TestSchedulePostResponseModel myScheduleResponse = myTestScheduleHelper.CreateTestSchedule(mySchedule);
+                Debug.WriteLine("Created test with keycode: {0} and PIN: {1}", myScheduleResponse.Keycode, myScheduleResponse.Pin);
+
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error creating testschedule: {0}", ex.Message);
+            }
+        }
+
+        static void runSampleSurpassPopulation(SurpassApiClient surpassClient)
+        {
+            var myCentreClient = new CentreHelper(surpassClient);
+            var mySubjectClient = new SubjectHelper(surpassClient);
+            var myCandidateHelper = new CandidateHelper(surpassClient);
             //Create a sample centre
             CentreCreateUpdateResource myCentre = new CentreCreateUpdateResource
             {
@@ -30,6 +77,7 @@ namespace SurpassAPI
                 Reference = "Shipley001"
             };
             var myCreatedCentre = myCentreClient.CreateOrUpdateCentre(myCentre);
+            Debug.WriteLine("Created centre {0}", myCentre.Reference);
             //Create a sample subject with sample centre as primary centre
             SubjectCreateResource mySubject = new SubjectCreateResource
             {
@@ -38,6 +86,7 @@ namespace SurpassAPI
                 PrimaryCentre = myCreatedCentre
             };
             var myCreatedSubject = mySubjectClient.CreateOrUpdateSubject(mySubject);
+            Debug.WriteLine("Created subject {0}", myCreatedSubject.Reference);
             //Create candidates from a list
             var myListOfSubjects = new List<SubjectResource> { mySubjectClient.Convert(myCreatedSubject) };
             var myListOfCentres = new List<CentreResource> { myCentreClient.Convert(myCreatedCentre) };
@@ -53,15 +102,7 @@ namespace SurpassAPI
                 {
                     Debug.WriteLine("Failed to create candidate {0} - {1}", candidate.Reference, ex.Message);
                 }
-
-
             }
-
-        }
-
-        static void populateSurpassWithSampleData()
-        {
-
         }
 
         static List<CandidateCreateResource> createSampleCandidates(List<CentreResource> centres, List<SubjectResource> subjects)

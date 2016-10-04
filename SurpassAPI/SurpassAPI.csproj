@@ -51,6 +51,7 @@
     <Compile Include="SubjectHelper.cs" />
     <Compile Include="SurpassApiHelper.cs" />
     <Compile Include="SurpassHelper.cs" />
+    <Compile Include="TestScheduleHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\..\Git2\surpass.editions.administration\Aspire.Administration\SurpassApiSdk\SurpassApiSdk.csproj">
