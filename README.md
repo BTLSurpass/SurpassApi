@@ -1,6 +1,8 @@
 # SurpassApi
 
-##Welcome to the Surpass API.
+##Welcome to the Surpass API SDK sample project.
+
+This application is available to help C# developers work with the Surpass API via the Surpass SDK.
 
 You can download the SDK from [nuget](https://www.nuget.org/packages/Surpass.API.SDK/)
 
