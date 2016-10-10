@@ -5,6 +5,9 @@ Welcome to the Surpass API.
 You can download the SDK from nuget
 https://www.nuget.org/packages/Surpass.API.SDK/
 
+Install using the package manager console
+Install-Package Surpass.API.SDK -Pre
+
 Here's some sample code to create a centre
 ```cs
 var mySurpassClient = new SurpassApiClient(SurpassUrl, SurpassUsername, SurpassPassword);
