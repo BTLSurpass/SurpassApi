@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using SurpassApiSdk;
 using SurpassApiSdk.DataContracts.Centre;
 using SurpassApiSdk.DataContracts.Response;
 using SurpassApiSdk.Exceptions;
 
-namespace SurpassAPI
+namespace SurpassAPI.Helper
 {
     public class CentreHelper: SurpassHelper
     {

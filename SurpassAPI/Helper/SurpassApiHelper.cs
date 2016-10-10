@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SurpassApiSdk;
+﻿using SurpassApiSdk;
 
-namespace SurpassAPI
+namespace SurpassAPI.Helper
 {
     public class SurpassApiHelper
     {

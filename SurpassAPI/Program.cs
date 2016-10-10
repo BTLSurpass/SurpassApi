@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using SurpassApiSdk;
 using SurpassApiSdk.DataContracts.Base;
 using SurpassApiSdk.DataContracts.Candidate;
 using SurpassApiSdk.DataContracts.Centre;
 using SurpassApiSdk.DataContracts.Subject;
 using SurpassApiSdk.DataContracts.TestSchedule;
+using SurpassAPI.Helper;
 
 namespace SurpassAPI
 {
@@ -49,6 +48,7 @@ namespace SurpassAPI
                 StartTime = "0900",
                 EndDate = DateTime.Now.AddDays(1).ToShortDateString(),
                 EndTime = "1600",
+                
 
                 RequiresInvigilation = true,
                 AllowMultipleOpenSessions = false

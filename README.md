@@ -2,7 +2,8 @@
 
 Welcome to the Surpass API.
 
-You can download the SDK from nuget..... Information to follow
+You can download the SDK from nuget
+https://www.nuget.org/packages/Surpass.API.SDK/
 
 Here's some sample code to create a centre
 ```cs

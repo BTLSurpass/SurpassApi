@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using SurpassApiSdk;
-using SurpassApiSdk.DataContracts.Base;
 using SurpassApiSdk.DataContracts.TestSchedule;
 using SurpassApiSdk.Exceptions;
 using SurpassApiSdk.Models;
 
-namespace SurpassAPI
+namespace SurpassAPI.Helper
 {
     public class TestScheduleHelper: SurpassHelper
     {
