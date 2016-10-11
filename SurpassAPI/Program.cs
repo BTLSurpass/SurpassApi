@@ -6,6 +6,8 @@ using SurpassApiSdk;
 using SurpassApiSdk.DataContracts.Base;
 using SurpassApiSdk.DataContracts.Candidate;
 using SurpassApiSdk.DataContracts.Centre;
+using SurpassApiSdk.DataContracts.Folder;
+using SurpassApiSdk.DataContracts.Item;
 using SurpassApiSdk.DataContracts.Subject;
 using SurpassApiSdk.DataContracts.TestSchedule;
 using SurpassAPI.Helper;
@@ -17,16 +19,100 @@ namespace SurpassAPI
         public static string SurpassUrl { get; set; }
         public static string SurpassUsername { get; set; }
         public static string SurpassPassword { get; set; }
+        // ReSharper disable once ArrangeTypeMemberModifiers
+        // ReSharper disable once InconsistentNaming
         static void Main(string[] args)
         {
             SurpassUrl = @"https://instanceName.surpass.com/";
             SurpassUsername = @"ThisIsNotaUsername";
             SurpassPassword = @"ThisIsNotaPassword";
             var mySurpassClient = new SurpassApiClient(SurpassUrl, SurpassUsername, SurpassPassword);
-            runSampleSurpassPopulation(mySurpassClient);
-            scheduleTestForToday(mySurpassClient, "Exam01", "Shipley001", "candidateRef01");
+            //Uncomment the blow to run
+
+            //runSampleSurpassPopulation(mySurpassClient);
+            //scheduleTestForToday(mySurpassClient, "Exam01", "Shipley001", "candidateRef01");
+            //createSampleMultipleChoiceItem(mySurpassClient);
         }
 
+        static void createSampleMultipleChoiceItem(SurpassApiClient surpassClient)
+        {
+            var myItemHelper = new ItemHelper(surpassClient);
+            //Create a link between the item and the subject
+
+            ItemSubjectResource myItemSubjectResource = new ItemSubjectResource
+            {
+                Reference = "Surpass0001"
+            };
+            FolderInputResource myFolderInputResource = new FolderInputResource
+            {
+                Name = "Sample Folder " + DateTime.UtcNow.ToLongDateString(),
+                Subject = myItemSubjectResource
+            };
+            var myFolderHelper = new FolderHelper(surpassClient);
+            FolderResource myFolder = myFolderHelper.GetFolderByName(myFolderInputResource);
+            if (myFolder == null)
+            {
+                myFolder = myFolderHelper.CreateFolder(myFolderInputResource);
+            }
+
+
+
+            ItemInputResource myQuestion = new ItemInputResource
+            {
+                Subject = myItemSubjectResource,
+                Name = "Sample Question",
+                QuestionText = "What is the capital city of England?",
+                Status = ItemStatusKey.Draft,
+                Mark = 1,
+                MarkingType = MarkingTypeKey.Computer,
+                Folder = new ItemFolderResource
+                {
+                    Id = (int)myFolder.Id
+                },
+                MultipleResponseQuestions = new List<MulptipleResponseItemUpdateResource>
+                {
+                    new MulptipleResponseItemUpdateResource
+                    {
+                        MarkType = MarkTypeKey.Standard,
+                        Randomise = true,
+                        PartialMarks = true,
+                        MaxSelections = 1,
+                        AddLabelsToOptions = false,
+                        OptionList = new ItemOptionListResource
+                        {
+                            Options = new List<ItemOptionResource>
+                                {
+                                    new ItemOptionResource
+                                    {
+                                        Text = "Shipley",
+                                        Correct = false,
+                                        Id = 1,
+                                        ContentType = ContentTypeKey.RichText
+                                    },
+                                    new ItemOptionResource
+                                    {
+                                        Text = "London",
+                                        Correct = true,
+                                        Id = 2,
+                                        ContentType = ContentTypeKey.RichText
+                                    },
+                                    new ItemOptionResource
+                                    {
+                                        Text = "Paris",
+                                        Correct = false,
+                                        Id = 3,
+                                        ContentType = ContentTypeKey.RichText
+                                    }
+                                }
+                        }
+
+                    }
+
+                }
+            };
+            var myCreatedItem = myItemHelper.CreateItem(myQuestion);
+            Debug.WriteLine("Created Item: {0}, version: {1}", myCreatedItem.Id, myCreatedItem.ItemVersion);
+        }
         static void scheduleTestForToday(SurpassApiClient surpassClient, string examReference, string centreReference, string candidateReference)
         {
             var myTestScheduleHelper = new TestScheduleHelper(surpassClient);
@@ -48,7 +134,7 @@ namespace SurpassAPI
                 StartTime = "0900",
                 EndDate = DateTime.Now.AddDays(1).ToShortDateString(),
                 EndTime = "1600",
-                
+
 
                 RequiresInvigilation = true,
                 AllowMultipleOpenSessions = false
