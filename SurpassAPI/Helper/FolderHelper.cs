@@ -50,5 +50,20 @@ namespace SurpassAPI.Helper
                 return null;
             }
         }
+        /// <summary>
+        /// Gets the folder if it exists or creates one
+        /// Wrapper function for CreateFolder & GetFolder
+        /// </summary>
+        /// <param name="folderInputResource">The folder input resource.</param>
+        /// <returns></returns>
+        public FolderResource GetOrCreateFolder(FolderInputResource folderInputResource)
+        {
+            FolderResource myFolder = GetFolderByName(folderInputResource);
+            if (myFolder == null)
+            {
+                myFolder = CreateFolder(folderInputResource);
+            }
+            return myFolder;
+        }
     }
 }

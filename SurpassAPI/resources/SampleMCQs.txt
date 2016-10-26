@@ -1,0 +1,12 @@
+﻿Question Stem|Seeded P values|Seeded usage count|Correct Answer|IncorrectAnswer 1|IncorrectAnswer 2|IncorrectAnswer 3|IncorrectAnswer 4
+Which singer joined Mel Gibson in the movie Mad Max: Beyond The Thunderdome?|0.6|265|TINA TURNER|HARVEY WALLBANGER|ALASKA|BANNOCKBURN
+Vodka, Galliano and orange juice are used to make which classic cocktail?|0.6|265|HARVEY WALLBANGER|BLACK BEAUTY|THE AFRICAN QUEEN|BOB MARLEY
+Which American state is nearest to the former Soviet Union?|0.6|265|ALASKA|BANNOCKBURN|BLACK BEAUTY|BOB MARLEY
+In which year did Foinavon win the Grand National?|0.6|265|1967|1856|1984|2015
+At which battle of 1314 did Robert The Bruce defeat the English forces?|0.6|265|BANNOCKBURN|ADDAMS FAMILY|COVENTRY|ALASKA
+Consecrated in 1962, where is the Cathedral Church of St Michael?|0.6|265|COVENTRY|HARVEY WALLBANGER|BOB MARLEY|TINA TURNER
+On TV, who did the character Lurch work for?|0.6|265|ADDAMS FAMILY|BOB MARLEY|HARVEY WALLBANGER|TINA TURNER
+Which children's classic book was written by Anna Sewell?|0.6|265|BLACK BEAUTY|ADDAMS FAMILY|BOB MARLEY|HARVEY WALLBANGER
+How many tentacles does a squid have?|0.6|265|TEN|HARVEY WALLBANGER|BOB MARLEY|TINA TURNER
+Which reggae singing star died 11th May 1981?|0.6|265|BOB MARLEY|HARVEY WALLBANGER|ADDAMS FAMILY|THE AFRICAN QUEEN
+Characters Charlie Allnut and Rosie Sayer appeared in which classic 1951 movie?|0.6|265|THE AFRICAN QUEEN|TINA TURNER|ADDAMS FAMILY|ALASKA

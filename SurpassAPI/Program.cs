@@ -27,35 +27,132 @@ namespace SurpassAPI
             SurpassUsername = @"ThisIsNotaUsername";
             SurpassPassword = @"ThisIsNotaPassword";
             var mySurpassClient = new SurpassApiClient(SurpassUrl, SurpassUsername, SurpassPassword);
-            //Uncomment the blow to run
+            //Uncomment the below to run sample code
 
             //runSampleSurpassPopulation(mySurpassClient);
             //scheduleTestForToday(mySurpassClient, "Exam01", "Shipley001", "candidateRef01");
-            //createSampleMultipleChoiceItem(mySurpassClient);
+            //createSampleMultipleChoiceItem(mySurpassClient, "Surpass0001");
+            //importMultipleChoiceContentFromCsv(mySurpassClient, "Surpass0001", "Sample Folder " + DateTime.UtcNow.ToLongDateString());
         }
 
-        static void createSampleMultipleChoiceItem(SurpassApiClient surpassClient)
+        static void importMultipleChoiceContentFromCsv(SurpassApiClient surpassClient, String subjectReference, String folderName)
+        {
+            //Create a link between the item and the subject - assumes that they already exist
+            ItemSubjectResource myItemSubjectResource = new ItemSubjectResource
+            {
+                Reference = subjectReference
+            };
+            FolderInputResource myFolderInputResource = new FolderInputResource
+            {
+                Name = folderName,
+                Subject = myItemSubjectResource
+            };
+            var myFolderHelper = new FolderHelper(surpassClient);
+            var myFolder = myFolderHelper.GetOrCreateFolder(myFolderInputResource);
+            
+            //Read the text file
+            //We are using a simplified format of QuestionText|CorrectAnswer|Incorrect answers (multiple) - seperated by a '|' character
+            //Assuming all questions are computer marked and worth one mark each
+            var myPathToMultipleChoiceCsv = AppDomain.CurrentDomain.BaseDirectory + @"resources\SampleMCQs.txt";
+            var myItemHelper = new ItemHelper(surpassClient);
+            using (StreamReader myStreamReader = new StreamReader(myPathToMultipleChoiceCsv))
+            {
+                string myLine;
+                //Ignore the first line as this only contains the headers
+                myStreamReader.ReadLine();
+                while ((myLine = myStreamReader.ReadLine()) != null)
+                {
+
+                    var myQuestionData = myLine.Split('|');
+                    string myQuestionStem = myQuestionData[0];
+                    double mySeededPValue = Convert.ToDouble(myQuestionData[1]);
+                    int mySeededUsageCount = Convert.ToInt32(myQuestionData[2]);
+                    string myCorrectAnswer = myQuestionData[3];
+                    var myIncorrectAnswers = new List<String>();
+                    for (int i = 3; i < myQuestionData.Length; i++)
+                    {
+                        myIncorrectAnswers.Add(myQuestionData[i]);
+                    }
+                    //Each answer option must have a unique id
+                    var myAnswerId = 1;
+                    var myAnswerOptions = new List<ItemOptionResource>
+                    {
+                        //Add the correct answer (we will randomise for presentation order later)
+                        new ItemOptionResource
+                        {
+                            Text = myCorrectAnswer,
+                            Correct = true,
+                            Id = myAnswerId,
+                            ContentType = ContentTypeKey.RichText
+                        }
+                    };
+                    //Add each of the incorrect answers
+                    foreach (String myIncorrectAnswer in myIncorrectAnswers)
+                    {
+                        myAnswerId++;
+                        myAnswerOptions.Add(new ItemOptionResource
+                        {
+                            Text = myIncorrectAnswer,
+                            Correct = false,
+                            Id = myAnswerId,
+                            ContentType = ContentTypeKey.RichText
+                        });
+                    }
+
+                    ItemInputResource myQuestion = new ItemInputResource
+                    {
+                        Subject = myItemSubjectResource,
+                        Name = myQuestionStem.Substring(0, 50),
+                        QuestionText = myQuestionStem,
+                        Status = ItemStatusKey.Draft,
+                        Mark = 1,
+                        MarkingType = MarkingTypeKey.Computer,
+                        SeedPValue = mySeededPValue,
+                        SeedUsageCount = mySeededUsageCount,
+                        Folder = new ItemFolderResource
+                        {
+                            Id = (int)myFolder.Id
+                        },
+                        MultipleResponseQuestions = new List<MulptipleResponseItemUpdateResource>
+                        {
+                            new MulptipleResponseItemUpdateResource
+                            {
+                                MarkType = MarkTypeKey.Standard,
+                                Randomise = true,
+                                PartialMarks = true,
+                                MaxSelections = 1,
+                                AddLabelsToOptions = false,
+                                OptionList = new ItemOptionListResource
+                                {
+                                    Options = myAnswerOptions
+                                }
+
+                            }
+
+                        }
+                    };
+                    var myCreatedItem = myItemHelper.CreateItem(myQuestion);
+                    Debug.WriteLine("Created Item: {0}, version: {1}", myCreatedItem.Id, myCreatedItem.ItemVersion);
+                }
+            }
+
+        }
+        static void createSampleMultipleChoiceItem(SurpassApiClient surpassClient, String subjectReference)
         {
             var myItemHelper = new ItemHelper(surpassClient);
             //Create a link between the item and the subject
 
             ItemSubjectResource myItemSubjectResource = new ItemSubjectResource
             {
-                Reference = "Surpass0001"
+                Reference = subjectReference
             };
             FolderInputResource myFolderInputResource = new FolderInputResource
             {
-                Name = "Sample Folder " + DateTime.UtcNow.ToLongDateString(),
+                Name = "Import Folder " + DateTime.UtcNow.ToLongDateString(),
                 Subject = myItemSubjectResource
             };
             var myFolderHelper = new FolderHelper(surpassClient);
-            FolderResource myFolder = myFolderHelper.GetFolderByName(myFolderInputResource);
-            if (myFolder == null)
-            {
-                myFolder = myFolderHelper.CreateFolder(myFolderInputResource);
-            }
-
-
+            var myFolder = myFolderHelper.GetOrCreateFolder(myFolderInputResource);
 
             ItemInputResource myQuestion = new ItemInputResource
             {
@@ -67,6 +164,7 @@ namespace SurpassAPI
                 MarkingType = MarkingTypeKey.Computer,
                 Folder = new ItemFolderResource
                 {
+                    // ReSharper disable once PossibleInvalidOperationException
                     Id = (int)myFolder.Id
                 },
                 MultipleResponseQuestions = new List<MulptipleResponseItemUpdateResource>
