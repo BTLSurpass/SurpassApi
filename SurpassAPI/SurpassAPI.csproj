@@ -85,6 +85,7 @@
     <Compile Include="Helper\CentreHelper.cs" />
     <Compile Include="Helper\FolderHelper.cs" />
     <Compile Include="Helper\ItemHelper.cs" />
+    <Compile Include="Helper\ResultHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helper\SubjectHelper.cs" />

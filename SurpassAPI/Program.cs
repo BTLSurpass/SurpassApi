@@ -36,9 +36,34 @@ namespace SurpassAPI
             //scheduleTestForToday(mySurpassClient, "Exam01", "Shipley001", "candidateRef01");
             //createSampleMultipleChoiceItem(mySurpassClient, "Surpass0001");
             //importMultipleChoiceContentFromCsv(mySurpassClient, "Surpass0001", "Sample Folder " + DateTime.UtcNow.ToLongDateString());
+            getResultForExam(mySurpassClient, "TF8B3HHF");
         }
+        /// <summary>
+        /// Sample method to get a result from Surpass
+        /// It is advised to cache the centre & subjects if you are calling for many results in a loop
+        /// </summary>
+        /// <param name="surpassClient">Surpass API client</param>
+        /// <param name="keycode">keycode for exam</param>
+        static void getResultForExam(SurpassApiClient surpassClient, String keycode)
+        {
+            var myHelper = new ResultHelper(surpassClient);
+            var myResult = myHelper.GetResult(keycode);
+            var myCandidateHelper = new CandidateHelper(surpassClient);
+            var myCandidate = myCandidateHelper.GetCandidate(myResult.Candidate.Reference);
+            var mySubjectHelper = new SubjectHelper(surpassClient);
+            var mySubject = mySubjectHelper.GetSubject(myResult.Subject.Reference);
+            var mycentreHelper = new CentreHelper(surpassClient);
+            var myCentre = mycentreHelper.GetCentre(myResult.Centre.Reference);
+            Console.WriteLine("Result for candidate '{0} {1}'. Exam taken at centre '{2}' in Subject '{3}' on '{4}'. Grade acheived was '{5}'"
+                , myCandidate.FirstName, myCandidate.LastName, myCentre.Name, mySubject.Name, myResult.SubmittedDate, myResult.Grade);
 
-
+        }
+        /// <summary>
+        /// Example demonstrating how to import content to create multiple choice questions
+        /// </summary>
+        /// <param name="surpassClient">Surpass API client</param>
+        /// <param name="subjectReference">A unique identifier for the subject</param>
+        /// <param name="folderName">Folder name</param>
         static void importMultipleChoiceContentFromCsv(SurpassApiClient surpassClient, String subjectReference, String folderName)
         {
             //Create a link between the item and the subject - assumes that they already exist
@@ -141,6 +166,11 @@ namespace SurpassAPI
             }
 
         }
+        /// <summary>
+        /// Creates one Multiple choice item
+        /// </summary>
+        /// <param name="surpassClient">Surpass API client</param>
+        /// <param name="subjectReference">A unique identifier for the subject</param>
         static void createSampleMultipleChoiceItem(SurpassApiClient surpassClient, String subjectReference)
         {
             var myItemHelper = new ItemHelper(surpassClient);
@@ -215,14 +245,21 @@ namespace SurpassAPI
             var myCreatedItem = myItemHelper.CreateItem(myQuestion);
             Debug.WriteLine("Created Item: {0}, version: {1}", myCreatedItem.Id, myCreatedItem.ItemVersion);
         }
-        static void scheduleTestForToday(SurpassApiClient surpassClient, string examReference, string centreReference, string candidateReference)
+        /// <summary>
+        /// Schedule a test for a candidate (assumes test is already created in Surpass)
+        /// </summary>
+        /// <param name="surpassClient">Surpass API client</param>
+        /// <param name="testReference">An identifier for the test</param>
+        /// <param name="centreReference">A unique identifier for the centre</param>
+        /// <param name="candidateReference">A unique identifier for the candidate</param>
+        static void scheduleTestForToday(SurpassApiClient surpassClient, string testReference, string centreReference, string candidateReference)
         {
             var myTestScheduleHelper = new TestScheduleHelper(surpassClient);
             var mySchedule = new TestScheduleResource
             {
                 Test = new Resource
                 {
-                    Reference = examReference
+                    Reference = testReference
                 },
                 Centre = new Resource
                 {
@@ -253,6 +290,10 @@ namespace SurpassAPI
             }
         }
 
+        /// <summary>
+        /// Demonstrates how to setup a centre and subject in Surpass
+        /// </summary>
+        /// <param name="surpassClient">Surpass API client</param>
         static void runSampleSurpassPopulation(SurpassApiClient surpassClient)
         {
             var myCentreClient = new CentreHelper(surpassClient);
@@ -293,6 +334,12 @@ namespace SurpassAPI
             }
         }
 
+        /// <summary>
+        /// Creates candidates and assigns each to a list on centres & subjects in Surpass
+        /// </summary>
+        /// <param name="centres">List of centres</param>
+        /// <param name="subjects">List of subjects</param>
+        /// <returns></returns>
         static List<CandidateCreateResource> createSampleCandidates(List<CentreResource> centres, List<SubjectResource> subjects)
         {
             var myActorsFileName = AppDomain.CurrentDomain.BaseDirectory + @"resources\FamousActors.txt";
@@ -300,7 +347,7 @@ namespace SurpassAPI
             return mySampleCandidates;
         }
 
-        static List<CandidateCreateResource> createCandidatesFromTextFile(string textFileName, IEnumerable<CentreResource> centres, IEnumerable<SubjectResource> subjects)
+        private static List<CandidateCreateResource> createCandidatesFromTextFile(string textFileName, IEnumerable<CentreResource> centres, IEnumerable<SubjectResource> subjects)
         {
             List<CandidateCreateResource> myList = new List<CandidateCreateResource>();
             using (StreamReader myStreamReader = new StreamReader(textFileName))
