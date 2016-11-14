@@ -91,10 +91,19 @@
     <Compile Include="Helper\SurpassApiHelper.cs" />
     <Compile Include="Helper\SurpassHelper.cs" />
     <Compile Include="Helper\TestScheduleHelper.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
     <None Include="SurpassClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>

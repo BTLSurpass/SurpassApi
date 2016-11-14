@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Xml.Linq;
 using SurpassApiSdk;
 using SurpassApiSdk.DataContracts.Base;
 using SurpassApiSdk.DataContracts.Candidate;
@@ -23,9 +25,10 @@ namespace SurpassAPI
         // ReSharper disable once InconsistentNaming
         static void Main(string[] args)
         {
-            SurpassUrl = @"https://instanceName.surpass.com/";
-            SurpassUsername = @"ThisIsNotaUsername";
-            SurpassPassword = @"ThisIsNotaPassword";
+            
+            SurpassUrl = Properties.Settings.Default.SurpassUrl ?? @"https://instanceName.surpass.com/";
+            SurpassUsername = Properties.Settings.Default.SurpassUsername ?? @"ThisIsNotaUsername";
+            SurpassPassword = Properties.Settings.Default.SurpassPassword ?? @"ThisIsNotaPassword";
             var mySurpassClient = new SurpassApiClient(SurpassUrl, SurpassUsername, SurpassPassword);
             //Uncomment the below to run sample code
 
@@ -34,6 +37,7 @@ namespace SurpassAPI
             //createSampleMultipleChoiceItem(mySurpassClient, "Surpass0001");
             //importMultipleChoiceContentFromCsv(mySurpassClient, "Surpass0001", "Sample Folder " + DateTime.UtcNow.ToLongDateString());
         }
+
 
         static void importMultipleChoiceContentFromCsv(SurpassApiClient surpassClient, String subjectReference, String folderName)
         {
