@@ -1,0 +1,11 @@
+﻿Question Stem|Seeded P values|Seeded usage count|Correct Answer|IncorrectAnswer 1
+From which song are these the opening lines? 'Poor old Johnny Ray sounded sad upon the radio.'|0.5|1|Come On Eileen – Dexy's Midnight Runners|Take Me To Church – Hozier
+From which song are these the opening lines? 'My lover's got humour, she's the giggle at a funeral.'|0.5|1|Take Me To Church – Hozier|The First Cut is the Deepest – Cat Stevens
+From which song are these the opening lines? 'I would have given you all of my heart but there's someone who's torn it apart.'|0.5|1|The First Cut is the Deepest – Cat Stevens|Why – Annie Lennox
+From which song are these the opening lines? 'How many times do I have to try to tell you that I'm sorry for the things I've done.'|0.5|1|Why – Annie Lennox|Tears of a clown – Smokey Robinson
+From which song are these the opening lines? 'Now if there's a smile on my face its only there trying to fool the public.'|0.5|1|Tears of a clown – Smokey Robinson|Losing My Religion – REM
+From which song are these the opening lines? 'Oh life, it's bigger, it's bigger than you.'|0.5|1|Losing My Religion – REM|River Deep, Mountain High – Ike and Tina Turner
+From which song are these the opening lines? 'When I was a little girl I had a rag doll.'|0.5|1|River Deep, Mountain High – Ike and Tina Turner|Creep – Radiohead
+From which song are these the opening lines? 'When you were here before, couldn't look you in the eye.'|0.5|1|Creep – Radiohead|Love Will Tear Us Apart – Joy Division
+From which song are these the opening lines? 'When routine bites hard and ambitions are low.'|0.5|1|Love Will Tear Us Apart – Joy Division|One – U2
+From which song are these the opening lines? 'Is it getting better or do you feel the same?'|0.5|1|One – U2|Come On Eileen – Dexy's Midnight Runners

@@ -22,7 +22,7 @@ namespace SurpassAPI.Helper
             try
             {
                 var foldercontroller = m_surpassApiClient.Folder;
-                TimeZonePageResponse<FolderResource> myGetResponse = foldercontroller.Get("filter=name eq '" + folder.Name + "'");
+                TimeZonePageResponse<FolderResource> myGetResponse = foldercontroller.Get("$filter=name eq '" + folder.Name + "'");
                 return myGetResponse.Response.ToList().Where(t => t.Name == folder.Name).ToList().FirstOrDefault();
             }
             catch (ResourceException)
@@ -45,7 +45,7 @@ namespace SurpassAPI.Helper
                 }
                 return null;
             }
-            catch (ResourceException)
+            catch (ResourceException ex)
             {
                 return null;
             }

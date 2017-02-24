@@ -1,0 +1,11 @@
+﻿Question Stem|Seeded P values|Seeded usage count|Correct Answer|IncorrectAnswer 1
+From which film is the following quote taken? 'What if Andy gets another dinosaur? A mean one? I just don’t think I can take that kind of rejection!'|0.5|1|Toy Story (1995)|Some Like It Hot (1959)
+From which film is the following quote taken? 'Story of my life. I always get the fuzzy end of the lollipop.'|0.5|1|Some Like It Hot (1959)|Harry Potter and the Prisoner of Azkaban (2004)
+From which film is the following quote taken? 'I solemnly swear that I am up to no good.'|0.5|1|Harry Potter and the Prisoner of Azkaban (2004)|Independence Day (1996)
+From which film is the following quote taken? 'All you need is love. John Lennon. Smart man. Shot in the back, very sad.'|0.5|1|Independence Day (1996)|Grease (1978)
+From which film is the following quote taken? 'Peachy keen, Jelly Bean.'|0.5|1|Grease (1978)|Mary Poppins (1964)
+From which film is the following quote taken? 'Close your mouth, please, Michael. We are not a codfish.'|0.5|1|Mary Poppins (1964)|Jurassic Park (1993)
+From which film is the following quote taken? 'Hammond, after some consideration, I’ve decided not to endorse your park.'|0.5|1|Jurassic Park (1993)|Pirates of the Caribbean: The Curse of the Black Pearl
+From which film is the following quote taken? 'You’re pirates. Hang the code and hang the rules. They’re more like guidelines anyway.'|0.5|1|Pirates of the Caribbean: The Curse of the Black Pearl|Ben-Hur (1959)
+From which film is the following quote taken? 'Your eyes are full of hate, forty-one. That’s good. Hate keeps a man alive. It gives him strength.'|0.5|1|Ben-Hur (1959)|Austin Powers: International Man of Mystery (1997)
+From which film is the following quote taken? 'Allow myself to introduce… myself.'|0.5|1|Austin Powers: International Man of Mystery (1997)|Toy Story (1995)

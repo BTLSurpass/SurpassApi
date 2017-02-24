@@ -3,16 +3,24 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Mime;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Minimod.PrettyPrint;
 using SurpassApiSdk;
 using SurpassApiSdk.DataContracts.Base;
 using SurpassApiSdk.DataContracts.Candidate;
 using SurpassApiSdk.DataContracts.Centre;
 using SurpassApiSdk.DataContracts.Folder;
 using SurpassApiSdk.DataContracts.Item;
+using SurpassApiSdk.DataContracts.ItemTagValue;
 using SurpassApiSdk.DataContracts.Subject;
+using SurpassApiSdk.DataContracts.TagGroup;
+using SurpassApiSdk.DataContracts.TagValue;
 using SurpassApiSdk.DataContracts.TestSchedule;
 using SurpassAPI.Helper;
+using TagGroupResource = SurpassApiSdk.DataContracts.ItemTagValue.TagGroupResource;
 
 namespace SurpassAPI
 {
@@ -25,7 +33,7 @@ namespace SurpassAPI
         // ReSharper disable once InconsistentNaming
         static void Main(string[] args)
         {
-            
+
             SurpassUrl = Properties.Settings.Default.SurpassUrl ?? @"https://instanceName.surpass.com/";
             SurpassUsername = Properties.Settings.Default.SurpassUsername ?? @"ThisIsNotaUsername";
             SurpassPassword = Properties.Settings.Default.SurpassPassword ?? @"ThisIsNotaPassword";
@@ -33,11 +41,83 @@ namespace SurpassAPI
             //Uncomment the below to run sample code
 
             //runSampleSurpassPopulation(mySurpassClient);
+            //importAllSampleContent(mySurpassClient, "ShipleyDevSubject1");
+            //addImageToMediaLibrary(mySurpassClient, "ShipleyDevSubject1", "image.jpg");
             //scheduleTestForToday(mySurpassClient, "Exam01", "Shipley001", "candidateRef01");
-            //createSampleMultipleChoiceItem(mySurpassClient, "Surpass0001");
-            //importMultipleChoiceContentFromCsv(mySurpassClient, "Surpass0001", "Sample Folder " + DateTime.UtcNow.ToLongDateString());
-            getResultForExam(mySurpassClient, "TF8B3HHF");
+            //createSampleMultipleChoiceItem(mySurpassClient, "ShipleyDevSubject1");
+            //getResultForExam(mySurpassClient, "TF8B3HHF");
         }
+
+        public static void importAllSampleContent(SurpassApiClient surpassClient, string subjectRef)
+        {
+            var myFolderName = "XX Sample Folder " + DateTime.UtcNow.ToLongDateString();
+            var myPathToMultipleChoiceCsv = AppDomain.CurrentDomain.BaseDirectory + @"resources\Music.txt";
+            importMultipleChoiceContentFromCsv(surpassClient, "ShipleyDevSubject1", myFolderName, myPathToMultipleChoiceCsv, true, "Music");
+            myPathToMultipleChoiceCsv = AppDomain.CurrentDomain.BaseDirectory + @"resources\Films.txt";
+            importMultipleChoiceContentFromCsv(surpassClient, "ShipleyDevSubject1", myFolderName, myPathToMultipleChoiceCsv, true, "Films");
+            myPathToMultipleChoiceCsv = AppDomain.CurrentDomain.BaseDirectory + @"resources\Science And Nature.txt";
+            importMultipleChoiceContentFromCsv(surpassClient, "ShipleyDevSubject1", myFolderName, myPathToMultipleChoiceCsv, true, "Science And Nature");
+            myPathToMultipleChoiceCsv = AppDomain.CurrentDomain.BaseDirectory + @"resources\SampleMCQs.txt";
+            importMultipleChoiceContentFromCsv(surpassClient, "ShipleyDevSubject1", myFolderName, myPathToMultipleChoiceCsv);
+        }
+        /// <summary>
+        /// Sample upload - uses lorempixel to get a random image
+        /// </summary>
+        /// <param name="surpassClient"></param>
+        /// <param name="subjectReference"></param>
+        /// <param name="imageName"></param>
+        private static long? addImageToMediaLibrary(SurpassApiClient surpassClient, string subjectReference, string imageName)
+        {
+            var myMediaHelper = new MediaHelper(surpassClient);
+            //Ensure we only use safe characters
+            Regex rgx = new Regex("[^a-zA-Z0-9 -.]");
+            imageName = rgx.Replace(imageName, "");
+            return myMediaHelper.Post(subjectReference, downloadImage(@"http://lorempixel.com/400/200/"), imageName);
+        }
+
+        private static byte[] downloadImage(string url)
+        {
+            using (WebClient webClient = new WebClient())
+            {
+                byte[] data = webClient.DownloadData(url);
+                return data;
+            }
+        }
+
+        private static void addTagValue(SurpassApiClient surpassClient, TagGroupDetailedResource tagGroup, String value)
+        {
+            var myTagValueHelper = new TagValueHelper(surpassClient);
+            if (myTagValueHelper.Get((int)tagGroup.Id.Value, value) == null)
+            {
+                var myTagValue = myTagValueHelper.CreateTag(tagGroup.Id.Value, value);
+            }
+
+
+        }
+        private static TagGroupDetailedResource createOrGetTagGroup(SurpassApiClient surpassClient, String subjectRef, String name)
+        {
+            var mySubjectHelper = new SubjectHelper(surpassClient);
+            var mySubject = mySubjectHelper.GetSubject(subjectRef);
+            if (mySubject == null) return null;
+            var myTagGroupHelper = new TagGroupHelper(surpassClient);
+            var myTagGroupDetailedResource = myTagGroupHelper.GetTagGroup(name, subjectRef);
+            if (myTagGroupDetailedResource == null)
+            {
+                var myTagGroup = new TagGroupInputResource
+                {
+                    Name = name,
+                    Subject = new ItemSubjectResource { Id = (int)mySubject.Id.Value },
+                    AuthorCreation = false,
+                    AllowMultipleTags = true,
+                    TagTypeValue = TagGroupTagTypeValueKey.Text,
+                    //NumericTagProperties = new TagGroupRestrictionsResource(),
+                };
+                myTagGroupDetailedResource = myTagGroupHelper.CreateTagGroup(myTagGroup);
+            }
+            Console.WriteLine(myTagGroupDetailedResource.PrettyPrint());
+            return myTagGroupDetailedResource;
+        }
+
         /// <summary>
         /// Sample method to get a result from Surpass
         /// It is advised to cache the centre & subjects if you are calling for many results in a loop
@@ -54,17 +134,24 @@ namespace SurpassAPI
             var mySubject = mySubjectHelper.GetSubject(myResult.Subject.Reference);
             var mycentreHelper = new CentreHelper(surpassClient);
             var myCentre = mycentreHelper.GetCentre(myResult.Centre.Reference);
-            Console.WriteLine("Result for candidate '{0} {1}'. Exam taken at centre '{2}' in Subject '{3}' on '{4}'. Grade acheived was '{5}'"
-                , myCandidate.FirstName, myCandidate.LastName, myCentre.Name, mySubject.Name, myResult.SubmittedDate, myResult.Grade);
+
+            var mySections = myResult.Sections;
+            Console.WriteLine("Result for candidate '{0} {1}'. Exam taken at centre '{2}' in Subject '{3}' on '{4}'. Grade acheived was '{5}'. The exam had '{6}' sections."
+                , myCandidate.FirstName, myCandidate.LastName, myCentre.Name, mySubject.Name, myResult.SubmittedDate, myResult.Grade, myResult.Sections.Count());
+            Console.WriteLine(myResult.PrettyPrint());
 
         }
+
         /// <summary>
         /// Example demonstrating how to import content to create multiple choice questions
         /// </summary>
         /// <param name="surpassClient">Surpass API client</param>
         /// <param name="subjectReference">A unique identifier for the subject</param>
         /// <param name="folderName">Folder name</param>
-        static void importMultipleChoiceContentFromCsv(SurpassApiClient surpassClient, String subjectReference, String folderName)
+        /// <param name="pathToMultipleChoiceCsv"></param>
+        /// <param name="createImageForeachItem"></param>
+        /// <param name="tagValue"></param>
+        static void importMultipleChoiceContentFromCsv(SurpassApiClient surpassClient, String subjectReference, String folderName, string pathToMultipleChoiceCsv, bool createImageForeachItem = false, String tagValue = "")
         {
             //Create a link between the item and the subject - assumes that they already exist
             ItemSubjectResource myItemSubjectResource = new ItemSubjectResource
@@ -78,13 +165,30 @@ namespace SurpassAPI
             };
             var myFolderHelper = new FolderHelper(surpassClient);
             var myFolder = myFolderHelper.GetOrCreateFolder(myFolderInputResource);
-            
+            TagGroupDetailedResource myTagGroup = null;
+            TagValueResource myTagValue = null;
+            if (tagValue != string.Empty)
+            {
+                myTagGroup = createOrGetTagGroup(surpassClient, subjectReference, "CustomProperty");
+                var myTagHelper = new TagValueHelper(surpassClient);
+
+                myTagValue = myTagHelper.Get((int)myTagGroup.Id, tagValue);
+                if (myTagValue == null)
+                {
+                    myTagValue = myTagHelper.CreateTag((int)myTagGroup.Id, tagValue);
+                }
+            }
+            importContent(surpassClient, pathToMultipleChoiceCsv, myFolder, myItemSubjectResource, createImageForeachItem, myTagGroup, myTagValue);
+        }
+
+        private static void importContent(SurpassApiClient surpassClient, String pathToCsv, FolderResource folder, ItemSubjectResource itemSubjectResource, bool createImageForeachItem = false, TagGroupDetailedResource tagGroup = null, TagValueResource tagValue = null)
+        {
             //Read the text file
             //We are using a simplified format of QuestionText|CorrectAnswer|Incorrect answers (multiple) - seperated by a '|' character
             //Assuming all questions are computer marked and worth one mark each
-            var myPathToMultipleChoiceCsv = AppDomain.CurrentDomain.BaseDirectory + @"resources\SampleMCQs.txt";
+
             var myItemHelper = new ItemHelper(surpassClient);
-            using (StreamReader myStreamReader = new StreamReader(myPathToMultipleChoiceCsv))
+            using (StreamReader myStreamReader = new StreamReader(pathToCsv))
             {
                 string myLine;
                 //Ignore the first line as this only contains the headers
@@ -98,7 +202,7 @@ namespace SurpassAPI
                     int mySeededUsageCount = Convert.ToInt32(myQuestionData[2]);
                     string myCorrectAnswer = myQuestionData[3];
                     var myIncorrectAnswers = new List<String>();
-                    for (int i = 3; i < myQuestionData.Length; i++)
+                    for (int i = 4; i < myQuestionData.Length; i++)
                     {
                         myIncorrectAnswers.Add(myQuestionData[i]);
                     }
@@ -130,8 +234,8 @@ namespace SurpassAPI
 
                     ItemInputResource myQuestion = new ItemInputResource
                     {
-                        Subject = myItemSubjectResource,
-                        Name = myQuestionStem.Substring(0, 50),
+                        Subject = itemSubjectResource,
+                        Name = myQuestionStem.Substring(0, Math.Min(myQuestionStem.Length, 50)).Replace('?', new char()),
                         QuestionText = myQuestionStem,
                         Status = ItemStatusKey.Draft,
                         Mark = 1,
@@ -140,7 +244,7 @@ namespace SurpassAPI
                         SeedUsageCount = mySeededUsageCount,
                         Folder = new ItemFolderResource
                         {
-                            Id = (int)myFolder.Id
+                            Id = (int)folder.Id
                         },
                         MultipleResponseQuestions = new List<MulptipleResponseItemUpdateResource>
                         {
@@ -160,12 +264,44 @@ namespace SurpassAPI
 
                         }
                     };
+
+                    if (createImageForeachItem)
+                    {
+
+                        Random r = new Random();
+                        var imageId = addImageToMediaLibrary(surpassClient, itemSubjectResource.Reference, r.Next(1, 10000) + ".jpg");
+                        var myList = new List<ItemDetailResource>();
+                        myList.Add(new ItemDetailResource
+                        {
+                            Id = (int)imageId
+                        });
+                        myQuestion.MediaItems = myList;
+                    }
+
+
                     var myCreatedItem = myItemHelper.CreateItem(myQuestion);
                     Debug.WriteLine("Created Item: {0}, version: {1}", myCreatedItem.Id, myCreatedItem.ItemVersion);
+                    if (myCreatedItem != null)
+                    {
+                        if ((tagGroup != null) && (tagValue != null))
+                        {
+
+                            var myItemTagValueInputResource = new ItemTagValueInputResource
+                            {
+                                TagValue = new SubjectTagValueResource {Id = (long) tagValue.Id},
+                                TagGroup = new TagGroupResource {Id = tagGroup.Id.Value},
+                                Item = new SubjectItemTagValueResource {Id = myCreatedItem.Id.Value}
+                            };
+                            var myItemTagValueHelper = new ItemTagValueHelper(surpassClient);
+                            myItemTagValueHelper.Post(myItemTagValueInputResource);
+                        }
+                    }
+
+
                 }
             }
-
         }
+
         /// <summary>
         /// Creates one Multiple choice item
         /// </summary>
@@ -244,6 +380,7 @@ namespace SurpassAPI
             };
             var myCreatedItem = myItemHelper.CreateItem(myQuestion);
             Debug.WriteLine("Created Item: {0}, version: {1}", myCreatedItem.Id, myCreatedItem.ItemVersion);
+            Console.WriteLine(myCreatedItem.PrettyPrint());
         }
         /// <summary>
         /// Schedule a test for a candidate (assumes test is already created in Surpass)
@@ -282,6 +419,7 @@ namespace SurpassAPI
             {
                 TestSchedulePostResponseModel myScheduleResponse = myTestScheduleHelper.CreateTestSchedule(mySchedule);
                 Debug.WriteLine("Created test with keycode: {0} and PIN: {1}", myScheduleResponse.Keycode, myScheduleResponse.Pin);
+                Console.WriteLine(myScheduleResponse.PrettyPrint());
 
             }
             catch (Exception ex)

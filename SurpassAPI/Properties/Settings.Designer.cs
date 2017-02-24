@@ -37,7 +37,7 @@ namespace SurpassAPI.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("bdoyle")]
+        [global::System.Configuration.DefaultSettingValueAttribute("brendandoyle")]
         public string SurpassUsername {
             get {
                 return ((string)(this["SurpassUsername"]));
