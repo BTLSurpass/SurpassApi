@@ -7,7 +7,7 @@ This application is available to help C# developers work with the Surpass API vi
 You can download the SDK from [nuget](https://www.nuget.org/packages/Surpass.API.SDK/)
 
 Install using the package manager console
-**Install-Package Surpass.API.SDK -Pre**
+**Install-Package Surpass.API.SDK**
 
 *Example code to create a centre & subject*
 ```cs
@@ -31,4 +31,4 @@ SubjectCreateResource mySubject = new SubjectCreateResource
 };
 var myCreatedSubject = mySubjectClient.CreateOrUpdateSubject(mySubject);
 ```
-Please Note: This application does not conform to BTL's coding practices, it is intended to demonstrate the options of using the API and may be overly verbose
+**Please Note:** This application does not conform to BTL's coding practices, it is intended to demonstrate the options of using the API and may be overly verbose
