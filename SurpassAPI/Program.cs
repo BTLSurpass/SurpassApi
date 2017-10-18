@@ -21,6 +21,10 @@ using SurpassApiSdk.DataContracts.TagValue;
 using SurpassApiSdk.DataContracts.TestSchedule;
 using SurpassAPI.Helper;
 using TagGroupResource = SurpassApiSdk.DataContracts.ItemTagValue.TagGroupResource;
+using SurpassApiSdk.DataContracts.Item.Details;
+using SurpassApiSdk.DataContracts.Item.Details.Items;
+using SurpassAPI.Models;
+using ET.FakeText;
 
 namespace SurpassAPI
 {
@@ -46,17 +50,18 @@ namespace SurpassAPI
             //scheduleTestForToday(mySurpassClient, "Exam01", "Shipley001", "candidateRef01");
             //createSampleMultipleChoiceItem(mySurpassClient, "ShipleyDevSubject1");
             //getResultForExam(mySurpassClient, "TF8B3HHF");
+
         }
 
         public static void importAllSampleContent(SurpassApiClient surpassClient, string subjectRef)
         {
-            var myFolderName = "XX Sample Folder " + DateTime.UtcNow.ToLongDateString();
+            var myFolderName = "ZZ Sample Folder " + DateTime.UtcNow.ToLongDateString();
             var myPathToMultipleChoiceCsv = AppDomain.CurrentDomain.BaseDirectory + @"resources\Music.txt";
-            importMultipleChoiceContentFromCsv(surpassClient, "ShipleyDevSubject1", myFolderName, myPathToMultipleChoiceCsv, true, "Music");
+            //importMultipleChoiceContentFromCsv(surpassClient, "ShipleyDevSubject1", myFolderName, myPathToMultipleChoiceCsv, true, "Music");
             myPathToMultipleChoiceCsv = AppDomain.CurrentDomain.BaseDirectory + @"resources\Films.txt";
-            importMultipleChoiceContentFromCsv(surpassClient, "ShipleyDevSubject1", myFolderName, myPathToMultipleChoiceCsv, true, "Films");
+            //importMultipleChoiceContentFromCsv(surpassClient, "ShipleyDevSubject1", myFolderName, myPathToMultipleChoiceCsv, true, "Films");
             myPathToMultipleChoiceCsv = AppDomain.CurrentDomain.BaseDirectory + @"resources\Science And Nature.txt";
-            importMultipleChoiceContentFromCsv(surpassClient, "ShipleyDevSubject1", myFolderName, myPathToMultipleChoiceCsv, true, "Science And Nature");
+            //importMultipleChoiceContentFromCsv(surpassClient, "ShipleyDevSubject1", myFolderName, myPathToMultipleChoiceCsv, true, "Science And Nature");
             myPathToMultipleChoiceCsv = AppDomain.CurrentDomain.BaseDirectory + @"resources\SampleMCQs.txt";
             importMultipleChoiceContentFromCsv(surpassClient, "ShipleyDevSubject1", myFolderName, myPathToMultipleChoiceCsv);
         }
@@ -94,7 +99,7 @@ namespace SurpassAPI
 
 
         }
-        private static TagGroupDetailedResource createOrGetTagGroup(SurpassApiClient surpassClient, String subjectRef, String name)
+        private static TagGroupDetailedResource createOrGetTagGroup(SurpassApiClient surpassClient, String subjectRef, String name, TagGroupTagTypeValueKey tagType = TagGroupTagTypeValueKey.Text, bool allowDecimals = false)
         {
             var mySubjectHelper = new SubjectHelper(surpassClient);
             var mySubject = mySubjectHelper.GetSubject(subjectRef);
@@ -107,11 +112,20 @@ namespace SurpassAPI
                 {
                     Name = name,
                     Subject = new ItemSubjectResource { Id = (int)mySubject.Id.Value },
-                    AuthorCreation = false,
-                    AllowMultipleTags = true,
-                    TagTypeValue = TagGroupTagTypeValueKey.Text,
+                    AuthorCreation = true,
+                    AllowMultipleTags = !(tagType == TagGroupTagTypeValueKey.Numeric),
+                    TagTypeValue = tagType,
+                    
                     //NumericTagProperties = new TagGroupRestrictionsResource(),
                 };
+                if (tagType == TagGroupTagTypeValueKey.Numeric)
+                {
+                    myTagGroup.NumericTagProperties = new TagGroupRestrictionsResource()
+                    {
+                        AllowDecimalPlaces = allowDecimals,
+                        
+                    };
+                }
                 myTagGroupDetailedResource = myTagGroupHelper.CreateTagGroup(myTagGroup);
             }
             Console.WriteLine(myTagGroupDetailedResource.PrettyPrint());
@@ -164,7 +178,7 @@ namespace SurpassAPI
                 Subject = myItemSubjectResource
             };
             var myFolderHelper = new FolderHelper(surpassClient);
-            var myFolder = myFolderHelper.GetOrCreateFolder(myFolderInputResource);
+            var myFolder = myFolderHelper.GetOrCreateFolder(myFolderInputResource, subjectReference);
             TagGroupDetailedResource myTagGroup = null;
             TagValueResource myTagValue = null;
             if (tagValue != string.Empty)
@@ -179,6 +193,63 @@ namespace SurpassAPI
                 }
             }
             importContent(surpassClient, pathToMultipleChoiceCsv, myFolder, myItemSubjectResource, createImageForeachItem, myTagGroup, myTagValue);
+        }
+
+        private static ItemInputResource createMCQItem(SurpassApiClient surpassClient, ItemSubjectResource itemSubjectResource, FolderResource folder, String myQuestionStem, double mySeededPValue, int mySeededUsageCount, List<ItemOptionUpdateResource> myAnswerOptions, bool createImageForeachItem)
+        {
+            ItemInputResource myQuestion = new ItemInputResource
+            {
+                Subject = itemSubjectResource,
+                Name = myQuestionStem.Substring(0, Math.Min(myQuestionStem.Length, 50)).Replace('?', new char()),
+                QuestionText = myQuestionStem,
+                Status = "Draft",
+                Mark = 1,
+                MarkingType = MarkingTypeKey.Computer,
+                SeedPValue = mySeededPValue,
+                SeedUsageCount = mySeededUsageCount,
+                
+                Folder = new ItemFolderResource
+                {
+                    Id = (int)folder.Id
+                },
+
+                MultipleChoiceQuestions = new List<MultipleChoiceItemUpdateResource>
+                        {
+                            new MultipleChoiceItemUpdateResource
+                            {
+                                MarkType = MarkTypeKey.Standard,
+                                Randomise = true,
+
+                                //OptionList = myAnswerOptions
+
+                                OptionList = new ItemOptionListUpdateResource
+                                {
+                                    Options = myAnswerOptions
+                                }
+
+                            }
+
+                        }
+            };
+            if (mySeededUsageCount == 0)
+            {
+                myQuestion.SeedPValue = null;
+                
+            }
+
+            if (createImageForeachItem)
+            {
+
+                Random r = new Random();
+                var imageId = addImageToMediaLibrary(surpassClient, itemSubjectResource.Reference, r.Next(1, 10000) + ".jpg");
+                var myList = new List<MediaItemDetailResource>();
+                myList.Add(new MediaItemDetailResource
+                {
+                    Id = (int)imageId
+                });
+                myQuestion.MediaItems = myList;
+            }
+            return myQuestion;
         }
 
         private static void importContent(SurpassApiClient surpassClient, String pathToCsv, FolderResource folder, ItemSubjectResource itemSubjectResource, bool createImageForeachItem = false, TagGroupDetailedResource tagGroup = null, TagValueResource tagValue = null)
@@ -208,10 +279,10 @@ namespace SurpassAPI
                     }
                     //Each answer option must have a unique id
                     var myAnswerId = 1;
-                    var myAnswerOptions = new List<ItemOptionResource>
+                    List<ItemOptionUpdateResource> myAnswerOptions = new List<ItemOptionUpdateResource>
                     {
                         //Add the correct answer (we will randomise for presentation order later)
-                        new ItemOptionResource
+                        new ItemOptionUpdateResource
                         {
                             Text = myCorrectAnswer,
                             Correct = true,
@@ -223,7 +294,7 @@ namespace SurpassAPI
                     foreach (String myIncorrectAnswer in myIncorrectAnswers)
                     {
                         myAnswerId++;
-                        myAnswerOptions.Add(new ItemOptionResource
+                        myAnswerOptions.Add(new ItemOptionUpdateResource
                         {
                             Text = myIncorrectAnswer,
                             Correct = false,
@@ -232,52 +303,8 @@ namespace SurpassAPI
                         });
                     }
 
-                    ItemInputResource myQuestion = new ItemInputResource
-                    {
-                        Subject = itemSubjectResource,
-                        Name = myQuestionStem.Substring(0, Math.Min(myQuestionStem.Length, 50)).Replace('?', new char()),
-                        QuestionText = myQuestionStem,
-                        Status = ItemStatusKey.Draft,
-                        Mark = 1,
-                        MarkingType = MarkingTypeKey.Computer,
-                        SeedPValue = mySeededPValue,
-                        SeedUsageCount = mySeededUsageCount,
-                        Folder = new ItemFolderResource
-                        {
-                            Id = (int)folder.Id
-                        },
-                        MultipleResponseQuestions = new List<MulptipleResponseItemUpdateResource>
-                        {
-                            new MulptipleResponseItemUpdateResource
-                            {
-                                MarkType = MarkTypeKey.Standard,
-                                Randomise = true,
-                                PartialMarks = true,
-                                MaxSelections = 1,
-                                AddLabelsToOptions = false,
-                                OptionList = new ItemOptionListResource
-                                {
-                                    Options = myAnswerOptions
-                                }
 
-                            }
-
-                        }
-                    };
-
-                    if (createImageForeachItem)
-                    {
-
-                        Random r = new Random();
-                        var imageId = addImageToMediaLibrary(surpassClient, itemSubjectResource.Reference, r.Next(1, 10000) + ".jpg");
-                        var myList = new List<ItemDetailResource>();
-                        myList.Add(new ItemDetailResource
-                        {
-                            Id = (int)imageId
-                        });
-                        myQuestion.MediaItems = myList;
-                    }
-
+                    var myQuestion = createMCQItem(surpassClient, itemSubjectResource, folder, myQuestionStem, mySeededPValue, mySeededUsageCount, myAnswerOptions, createImageForeachItem);
 
                     var myCreatedItem = myItemHelper.CreateItem(myQuestion);
                     Debug.WriteLine("Created Item: {0}, version: {1}", myCreatedItem.Id, myCreatedItem.ItemVersion);
@@ -288,18 +315,41 @@ namespace SurpassAPI
 
                             var myItemTagValueInputResource = new ItemTagValueInputResource
                             {
-                                TagValue = new SubjectTagValueResource {Id = (long) tagValue.Id},
-                                TagGroup = new TagGroupResource {Id = tagGroup.Id.Value},
-                                Item = new SubjectItemTagValueResource {Id = myCreatedItem.Id.Value}
+                                TagValue = new SubjectTagValueResource { Id = (long)tagValue.Id },
+                                TagGroup = new TagGroupResource { Id = tagGroup.Id.Value },
+                                Item = new SubjectItemTagValueResource { Id = myCreatedItem.Id.Value }
                             };
                             var myItemTagValueHelper = new ItemTagValueHelper(surpassClient);
                             myItemTagValueHelper.Post(myItemTagValueInputResource);
                         }
                     }
-
+                    
 
                 }
             }
+        }
+        
+        
+        private static void setTagValue(SurpassApiClient surpassClient, TagGroupDetailedResource tagGroup, double value, ItemResource surpassItem)
+        {
+            setTagValue(surpassClient, tagGroup, Convert.ToString(value), surpassItem);
+        }
+        private static void setTagValue(SurpassApiClient surpassClient, TagGroupDetailedResource tagGroup, String value, ItemResource surpassItem)
+        {
+            var myTagValueHelper = new TagValueHelper(surpassClient);
+            TagValueResource mySetCaseTagValue = myTagValueHelper.Get(Convert.ToInt32(tagGroup.Id), value);
+            if (mySetCaseTagValue == null)
+            {
+                mySetCaseTagValue = myTagValueHelper.CreateTag(Convert.ToInt32(tagGroup.Id), value);
+            }
+            var myItemTagValueInputResource = new ItemTagValueInputResource
+            {
+                TagValue = new SubjectTagValueResource { Id = (long)mySetCaseTagValue.Id.Value },
+                TagGroup = new TagGroupResource { Id = tagGroup.Id.Value },
+                Item = new SubjectItemTagValueResource { Id = surpassItem.Id.Value }
+            };
+            var myItemTagValueHelper = new ItemTagValueHelper(surpassClient);
+            myItemTagValueHelper.Post(myItemTagValueInputResource);
         }
 
         /// <summary>
@@ -307,81 +357,81 @@ namespace SurpassAPI
         /// </summary>
         /// <param name="surpassClient">Surpass API client</param>
         /// <param name="subjectReference">A unique identifier for the subject</param>
-        static void createSampleMultipleChoiceItem(SurpassApiClient surpassClient, String subjectReference)
-        {
-            var myItemHelper = new ItemHelper(surpassClient);
-            //Create a link between the item and the subject
+        //static void createSampleMultipleChoiceItem(SurpassApiClient surpassClient, String subjectReference)
+        //{
+        //    var myItemHelper = new ItemHelper(surpassClient);
+        //    //Create a link between the item and the subject
 
-            ItemSubjectResource myItemSubjectResource = new ItemSubjectResource
-            {
-                Reference = subjectReference
-            };
-            FolderInputResource myFolderInputResource = new FolderInputResource
-            {
-                Name = "Import Folder " + DateTime.UtcNow.ToLongDateString(),
-                Subject = myItemSubjectResource
-            };
-            var myFolderHelper = new FolderHelper(surpassClient);
-            var myFolder = myFolderHelper.GetOrCreateFolder(myFolderInputResource);
+        //    ItemSubjectResource myItemSubjectResource = new ItemSubjectResource
+        //    {
+        //        Reference = subjectReference
+        //    };
+        //    FolderInputResource myFolderInputResource = new FolderInputResource
+        //    {
+        //        Name = "Import Folder " + DateTime.UtcNow.ToLongDateString(),
+        //        Subject = myItemSubjectResource
+        //    };
+        //    var myFolderHelper = new FolderHelper(surpassClient);
+        //    var myFolder = myFolderHelper.GetOrCreateFolder(myFolderInputResource);
 
-            ItemInputResource myQuestion = new ItemInputResource
-            {
-                Subject = myItemSubjectResource,
-                Name = "Sample Question",
-                QuestionText = "What is the capital city of England?",
-                Status = ItemStatusKey.Draft,
-                Mark = 1,
-                MarkingType = MarkingTypeKey.Computer,
-                Folder = new ItemFolderResource
-                {
-                    // ReSharper disable once PossibleInvalidOperationException
-                    Id = (int)myFolder.Id
-                },
-                MultipleResponseQuestions = new List<MulptipleResponseItemUpdateResource>
-                {
-                    new MulptipleResponseItemUpdateResource
-                    {
-                        MarkType = MarkTypeKey.Standard,
-                        Randomise = true,
-                        PartialMarks = true,
-                        MaxSelections = 1,
-                        AddLabelsToOptions = false,
-                        OptionList = new ItemOptionListResource
-                        {
-                            Options = new List<ItemOptionResource>
-                                {
-                                    new ItemOptionResource
-                                    {
-                                        Text = "Shipley",
-                                        Correct = false,
-                                        Id = 1,
-                                        ContentType = ContentTypeKey.RichText
-                                    },
-                                    new ItemOptionResource
-                                    {
-                                        Text = "London",
-                                        Correct = true,
-                                        Id = 2,
-                                        ContentType = ContentTypeKey.RichText
-                                    },
-                                    new ItemOptionResource
-                                    {
-                                        Text = "Paris",
-                                        Correct = false,
-                                        Id = 3,
-                                        ContentType = ContentTypeKey.RichText
-                                    }
-                                }
-                        }
+        //    ItemInputResource myQuestion = new ItemInputResource
+        //    {
+        //        Subject = myItemSubjectResource,
+        //        Name = "Sample Question",
+        //        QuestionText = "What is the capital city of England?",
+        //        Status = "Draft",
+        //        Mark = 1,
+        //        MarkingType = MarkingTypeKey.Computer,
+        //        Folder = new ItemFolderResource
+        //        {
+        //            // ReSharper disable once PossibleInvalidOperationException
+        //            Id = (int)myFolder.Id
+        //        },
+        //        MultipleResponseQuestions = new List<MulptipleResponseItemUpdateResource>
+        //        {
+        //            new MulptipleResponseItemUpdateResource
+        //            {
+        //                MarkType = MarkTypeKey.Standard,
+        //                Randomise = true,
+        //                PartialMarks = true,
+        //                MaxSelections = 1,
+        //                AddLabelsToOptions = false,
+        //                OptionList = new ItemOptionListResource
+        //                {
+        //                    Options = new List<ItemOptionResource>
+        //                        {
+        //                            new ItemOptionResource
+        //                            {
+        //                                Text = "Shipley",
+        //                                Correct = false,
+        //                                Id = 1,
+        //                                ContentType = ContentTypeKey.RichText
+        //                            },
+        //                            new ItemOptionResource
+        //                            {
+        //                                Text = "London",
+        //                                Correct = true,
+        //                                Id = 2,
+        //                                ContentType = ContentTypeKey.RichText
+        //                            },
+        //                            new ItemOptionResource
+        //                            {
+        //                                Text = "Paris",
+        //                                Correct = false,
+        //                                Id = 3,
+        //                                ContentType = ContentTypeKey.RichText
+        //                            }
+        //                        }
+        //                }
 
-                    }
+        //            }
 
-                }
-            };
-            var myCreatedItem = myItemHelper.CreateItem(myQuestion);
-            Debug.WriteLine("Created Item: {0}, version: {1}", myCreatedItem.Id, myCreatedItem.ItemVersion);
-            Console.WriteLine(myCreatedItem.PrettyPrint());
-        }
+        //        }
+        //    };
+        //    var myCreatedItem = myItemHelper.CreateItem(myQuestion);
+        //    Debug.WriteLine("Created Item: {0}, version: {1}", myCreatedItem.Id, myCreatedItem.ItemVersion);
+        //    Console.WriteLine(myCreatedItem.PrettyPrint());
+        //}
         /// <summary>
         /// Schedule a test for a candidate (assumes test is already created in Surpass)
         /// </summary>
@@ -389,7 +439,7 @@ namespace SurpassAPI
         /// <param name="testReference">An identifier for the test</param>
         /// <param name="centreReference">A unique identifier for the centre</param>
         /// <param name="candidateReference">A unique identifier for the candidate</param>
-        static void scheduleTestForToday(SurpassApiClient surpassClient, string testReference, string centreReference, string candidateReference)
+        private static void scheduleTestForToday(SurpassApiClient surpassClient, string testReference, string centreReference, string candidateReference)
         {
             var myTestScheduleHelper = new TestScheduleHelper(surpassClient);
             var mySchedule = new TestScheduleResource
@@ -438,7 +488,7 @@ namespace SurpassAPI
             var mySubjectClient = new SubjectHelper(surpassClient);
             var myCandidateHelper = new CandidateHelper(surpassClient);
             //Create a sample centre
-            CentreCreateUpdateResource myCentre = new CentreCreateUpdateResource
+            CentreCreateResource myCentre = new CentreCreateResource
             {
                 Name = "Shipley Centre",
                 Reference = "Shipley001"

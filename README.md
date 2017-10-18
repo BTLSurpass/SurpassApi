@@ -31,3 +31,4 @@ SubjectCreateResource mySubject = new SubjectCreateResource
 };
 var myCreatedSubject = mySubjectClient.CreateOrUpdateSubject(mySubject);
 ```
+Please Note: This application does not conform to BTL's coding practices, it is intended to demonstrate the options of using the API and may be overly verbose

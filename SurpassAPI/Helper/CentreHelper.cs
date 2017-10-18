@@ -18,14 +18,21 @@ namespace SurpassAPI.Helper
         /// </summary>
         /// <param name="centre"></param>
         /// <returns></returns>
-        public CentreDetailedResource CreateOrUpdateCentre(CentreCreateUpdateResource centre)
+        public CentreDetailedResource CreateOrUpdateCentre(CentreCreateResource centre)
         {
-            CentreDetailedResource myCentreResource = GetCentre(centre);
+            CentreDetailedResource myCentreResource = GetCentre(centre.Reference);
             if (myCentreResource != null)
             {
                 if (!CheckEquivalent(centre, myCentreResource))
                 {
-                    UpdateCentre(centre);
+                    CentreUpdateResource myExistingCentre = new CentreUpdateResource()
+                    {
+                        Name = centre.Name,
+                        Reference = centre.Reference,
+                        RandomiseTestForms = centre.RandomiseTestForms
+                        
+                    };
+                    UpdateCentre(myExistingCentre);
                 }
                 return myCentreResource;
             }
@@ -37,7 +44,7 @@ namespace SurpassAPI.Helper
             }
             return myCentreResource;
         }
-        internal Boolean CheckEquivalent(CentreCreateUpdateResource centre1, CentreDetailedResource centre2)
+        internal Boolean CheckEquivalent(CentreCreateResource centre1, CentreDetailedResource centre2)
         {
 
             var nameCheck = (centre1.Name == centre2.Name);
@@ -61,7 +68,7 @@ namespace SurpassAPI.Helper
         /// </summary>
         /// <param name="centre"></param>
         /// <returns></returns>
-        public CentreDetailedResource GetCentre(CentreCreateUpdateResource centre)
+        public CentreDetailedResource GetCentre(CentreCreateResource centre)
         {
             return GetCentre(centre.Reference);
         }
@@ -71,7 +78,7 @@ namespace SurpassAPI.Helper
         /// </summary>
         /// <param name="centre"></param>
         /// <returns></returns>
-        public TimeZonePostResponseModel CreateCentre(CentreCreateUpdateResource centre)
+        public TimeZonePostResponseModel CreateCentre(CentreCreateResource centre)
         {
             var centreController = m_surpassApiClient.Centre;
             TimeZonePostResponseModel myCentreResponse = centreController.Post(centre);
@@ -82,7 +89,7 @@ namespace SurpassAPI.Helper
         /// </summary>
         /// <param name="centre"></param>
         /// <returns></returns>
-        public TimeZonePostResponseModel UpdateCentre(CentreCreateUpdateResource centre)
+        public TimeZonePostResponseModel UpdateCentre(CentreUpdateResource centre)
         {
             var centreController = m_surpassApiClient.Centre;
             TimeZonePostResponseModel myCentreResponse = centreController.Put(centre.Reference, centre);

@@ -19,7 +19,10 @@ namespace SurpassAPI.Helper
         public TagValueResource CreateTag(long tagGroupId, string value)
         {
             var controller = m_surpassApiClient.TagValue;
-            var tagValue = new TagValueInputResource { TagValue = value, TagGroup = new TagValueGroupResource { Id = tagGroupId } };
+            var tagValue = new TagValueInputResource {
+                TagValue = value,
+                TagGroup = new TagValueGroupResource { Id = tagGroupId }
+            };
             var response = controller.Post(tagValue);
             
             TimeZonePageResponse<TagValueResource> myTagResponse = controller.Get(response.Id.Value);

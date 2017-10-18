@@ -36,5 +36,25 @@ namespace SurpassAPI.Helper
                 return null;
             }
         }
+
+        public ItemResource Get(long id)
+        {
+            try
+            {
+                var itemController = m_surpassApiClient.Item;
+                TimeZonePageResponse<ItemResource> myGetResponse = itemController.Get(Convert.ToInt32(id));
+                return myGetResponse.Response.ToList().FirstOrDefault();
+
+            }
+            catch (ResourceException ex)
+            {
+                //Does not exist
+                return null;
+            }
+        }
+
+        
+
+        //public void GetItem
     }
 }

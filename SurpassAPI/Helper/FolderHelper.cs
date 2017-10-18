@@ -17,12 +17,13 @@ namespace SurpassAPI.Helper
 
         }
 
-        public FolderResource GetFolderByName(FolderInputResource folder)
+        public FolderResource GetFolderByName(FolderInputResource folder, String subjectReference)
         {
             try
             {
                 var foldercontroller = m_surpassApiClient.Folder;
-                TimeZonePageResponse<FolderResource> myGetResponse = foldercontroller.Get("$filter=name eq '" + folder.Name + "'");
+                var oDataQuery = string.Format("$filter=name eq '{0}' and Subject/Reference eq '{1}'", folder.Name, subjectReference);
+                TimeZonePageResponse<FolderResource> myGetResponse = foldercontroller.Get(oDataQuery);
                 return myGetResponse.Response.ToList().Where(t => t.Name == folder.Name).ToList().FirstOrDefault();
             }
             catch (ResourceException)
@@ -56,9 +57,9 @@ namespace SurpassAPI.Helper
         /// </summary>
         /// <param name="folderInputResource">The folder input resource.</param>
         /// <returns></returns>
-        public FolderResource GetOrCreateFolder(FolderInputResource folderInputResource)
+        public FolderResource GetOrCreateFolder(FolderInputResource folderInputResource, String subjectReference)
         {
-            FolderResource myFolder = GetFolderByName(folderInputResource);
+            FolderResource myFolder = GetFolderByName(folderInputResource, subjectReference);
             if (myFolder == null)
             {
                 myFolder = CreateFolder(folderInputResource);

@@ -8,6 +8,7 @@ using SurpassApiSdk;
 using SurpassApiSdk.DataContracts.Item;
 using SurpassApiSdk.DataContracts.Media;
 using SurpassApiSdk.Exceptions;
+using SurpassApiSdk.DataContracts.Item.Details;
 
 namespace SurpassAPI.Helper
 {

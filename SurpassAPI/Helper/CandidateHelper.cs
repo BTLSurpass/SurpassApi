@@ -68,7 +68,7 @@ namespace SurpassAPI.Helper
                 Email = aCandidate.Email,
                 FirstName = aCandidate.FirstName,
                 LastName = aCandidate.LastName,
-                Retired = aCandidate.Retired,
+                //Retired = aCandidate.Retired,
                 Tel = aCandidate.Tel,
                 SpecialRequirements = aCandidate.SpecialRequirements,
                 Subjects = aCandidate.Subjects

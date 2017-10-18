@@ -31,7 +31,7 @@ namespace SurpassAPI.Helper
                 }
                 return null;
             }
-            catch (ResourceException)
+            catch (ResourceException ex)
             {
                 return null;
             }
