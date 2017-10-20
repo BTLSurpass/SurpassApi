@@ -1,11 +1,11 @@
 ﻿Question Stem|Seeded P values|Seeded usage count|Correct Answer|IncorrectAnswer 1
-Of what is myology the study?|0.5|1|The muscular system/muscles|The nervous system
-How many of the eight planets in our solar system have moons?|0.5|1|6|1
-Which element comes second in the periodic table and therefore has the atomic number 2?|0.5|1|Helium|Lithium
-What is the most abundant element in the Earth’s crust (by mass)?|0.5|1|Oxygen|Nitrogen
-Which scientific instrument is used to measure atmospheric pressure?|0.5|1|Barometer|Presometer
-Vitamin B2 is more commonly known by which name?|0.5|1|Riboflavin|niacin
-Which part of a flower produces pollen?|0.5|1|Stamen|Anther
-How many hearts does an octopus have?|0.5|1|3|1
-‘Bellis perennis’ is the scientific name for which flower commonly found in the wild in Britain?|0.5|1|Daisy|Dandelion
-In terms of height, which is the world’s largest dog breed?|0.5|1|Great Dane|Saint Bernard
+Of what is myology the study?|0.5|1|The muscular system/muscles|The nervous system|The eyes|The teeth
+How many of the eight planets in our solar system have moons?|0.5|1|6|1|2|3
+Which element comes second in the periodic table and therefore has the atomic number 2?|0.5|1|Helium|Lithium|Berillium|Oxygen
+What is the most abundant element in the Earth’s crust (by mass)?|0.5|1|Oxygen|Nitrogen|Helium|Hydrogen
+Which scientific instrument is used to measure atmospheric pressure?|0.5|1|Barometer|Presometer|Atmosometer|Heavy Meter
+Vitamin B2 is more commonly known by which name?|0.5|1|Riboflavin|niacin|Sugar|Salt
+Which part of a flower produces pollen?|0.5|1|Stamen|Anther|Stem|Leaf
+How many hearts does an octopus have?|0.5|1|3|1|55|0
+‘Bellis perennis’ is the scientific name for which flower commonly found in the wild in Britain?|0.5|1|Daisy|Dandelion|Crocus|Tulip
+In terms of height, which is the world’s largest dog breed?|0.5|1|Great Dane|Saint Bernard|Poodle|Bigsby

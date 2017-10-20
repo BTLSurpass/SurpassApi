@@ -33,6 +33,11 @@ namespace SurpassAPI
         public static string SurpassUrl { get; set; }
         public static string SurpassUsername { get; set; }
         public static string SurpassPassword { get; set; }
+        const String _SubjectReference = "ShipleySubject";
+        const String _SubjectName = "Shipley Subject";
+        const String _CentreReference = "Shipley0001";
+        const String _CentreName = "Shipley Centre 0001";
+
         // ReSharper disable once ArrangeTypeMemberModifiers
         // ReSharper disable once InconsistentNaming
         static void Main(string[] args)
@@ -44,26 +49,25 @@ namespace SurpassAPI
             var mySurpassClient = new SurpassApiClient(SurpassUrl, SurpassUsername, SurpassPassword);
             //Uncomment the below to run sample code
 
-            //runSampleSurpassPopulation(mySurpassClient);
-            //importAllSampleContent(mySurpassClient, "ShipleyDevSubject1");
-            //addImageToMediaLibrary(mySurpassClient, "ShipleyDevSubject1", "image.jpg");
-            //scheduleTestForToday(mySurpassClient, "Exam01", "Shipley001", "candidateRef01");
-            //createSampleMultipleChoiceItem(mySurpassClient, "ShipleyDevSubject1");
-            //getResultForExam(mySurpassClient, "TF8B3HHF");
+            runSampleSurpassPopulation(mySurpassClient);
+            var myFolderName = "Import Folder " + DateTime.UtcNow.ToLongDateString();
+            importAllSampleContent(mySurpassClient, _SubjectReference, myFolderName);
+            addImageToMediaLibrary(mySurpassClient, _SubjectReference, "image.jpg");
+            scheduleTestForToday(mySurpassClient, "Exam01", _CentreReference, "candidateRef01");
+            getResultForExam(mySurpassClient, "TF8B3HHF");
 
         }
 
-        public static void importAllSampleContent(SurpassApiClient surpassClient, string subjectRef)
+        public static void importAllSampleContent(SurpassApiClient surpassClient, string subjectRef, String folderName)
         {
-            var myFolderName = "ZZ Sample Folder " + DateTime.UtcNow.ToLongDateString();
             var myPathToMultipleChoiceCsv = AppDomain.CurrentDomain.BaseDirectory + @"resources\Music.txt";
-            //importMultipleChoiceContentFromCsv(surpassClient, "ShipleyDevSubject1", myFolderName, myPathToMultipleChoiceCsv, true, "Music");
+            importMultipleChoiceContentFromCsv(surpassClient, _SubjectReference, folderName, myPathToMultipleChoiceCsv, true, "Music");
             myPathToMultipleChoiceCsv = AppDomain.CurrentDomain.BaseDirectory + @"resources\Films.txt";
-            //importMultipleChoiceContentFromCsv(surpassClient, "ShipleyDevSubject1", myFolderName, myPathToMultipleChoiceCsv, true, "Films");
+            importMultipleChoiceContentFromCsv(surpassClient, _SubjectReference, folderName, myPathToMultipleChoiceCsv, true, "Films");
             myPathToMultipleChoiceCsv = AppDomain.CurrentDomain.BaseDirectory + @"resources\Science And Nature.txt";
-            //importMultipleChoiceContentFromCsv(surpassClient, "ShipleyDevSubject1", myFolderName, myPathToMultipleChoiceCsv, true, "Science And Nature");
+            importMultipleChoiceContentFromCsv(surpassClient, _SubjectReference, folderName, myPathToMultipleChoiceCsv, true, "Science And Nature");
             myPathToMultipleChoiceCsv = AppDomain.CurrentDomain.BaseDirectory + @"resources\SampleMCQs.txt";
-            importMultipleChoiceContentFromCsv(surpassClient, "ShipleyDevSubject1", myFolderName, myPathToMultipleChoiceCsv);
+            importMultipleChoiceContentFromCsv(surpassClient, _SubjectReference, folderName, myPathToMultipleChoiceCsv);
         }
         /// <summary>
         /// Sample upload - uses lorempixel to get a random image
@@ -197,6 +201,7 @@ namespace SurpassAPI
 
         private static ItemInputResource createMCQItem(SurpassApiClient surpassClient, ItemSubjectResource itemSubjectResource, FolderResource folder, String myQuestionStem, double mySeededPValue, int mySeededUsageCount, List<ItemOptionUpdateResource> myAnswerOptions, bool createImageForeachItem)
         {
+            
             ItemInputResource myQuestion = new ItemInputResource
             {
                 Subject = itemSubjectResource,
@@ -490,16 +495,16 @@ namespace SurpassAPI
             //Create a sample centre
             CentreCreateResource myCentre = new CentreCreateResource
             {
-                Name = "Shipley Centre",
-                Reference = "Shipley001"
+                Name = _CentreName,
+                Reference = _CentreReference
             };
             var myCreatedCentre = myCentreClient.CreateOrUpdateCentre(myCentre);
             Debug.WriteLine("Created centre {0}", myCentre.Reference);
             //Create a sample subject with sample centre as primary centre
             SubjectCreateResource mySubject = new SubjectCreateResource
             {
-                Name = "Surpass Subject",
-                Reference = "Surpass0001",
+                Name = _SubjectName,
+                Reference = _SubjectReference,
                 PrimaryCentre = myCreatedCentre
             };
             var myCreatedSubject = mySubjectClient.CreateOrUpdateSubject(mySubject);
